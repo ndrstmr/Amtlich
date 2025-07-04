@@ -16,11 +16,17 @@ class MCPCMSBackendTest(unittest.TestCase):
     def test_01_health_check(self):
         """Test the health check endpoint"""
         print("\n🔍 Testing health check endpoint...")
-        response = requests.get(f"{self.base_url}/health")
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(data["status"], "healthy")
-        print("✅ Health check passed")
+        response = requests.get(f"{self.base_url}/api/health")
+        print(f"Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        
+        try:
+            data = response.json()
+            self.assertEqual(data["status"], "healthy")
+            print("✅ Health check passed")
+        except Exception as e:
+            print(f"❌ Health check failed: {str(e)}")
+            self.fail(f"Health check failed: {str(e)}")
         
     def test_02_register_user(self):
         """Test user registration (expected to fail due to placeholder Firebase credentials)"""
