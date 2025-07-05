@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 import logging
 
 from .services.db import client, init_firebase
-from .routes.api import router as api_router
+from .routes.api import public_router, protected_router
 
 app = FastAPI(
     title="MCP-CMS",
@@ -11,7 +11,8 @@ app = FastAPI(
 )
 
 # Register API routes
-app.include_router(api_router)
+app.include_router(public_router)
+app.include_router(protected_router)
 
 # CORS middleware
 app.add_middleware(
