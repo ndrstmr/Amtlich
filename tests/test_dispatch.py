@@ -1,8 +1,4 @@
-from fastapi.testclient import TestClient
-from backend.server import app
 from backend.services.tools import tool_registry, Tool
-
-client = TestClient(app)
 
 
 class DummyTool(Tool):
