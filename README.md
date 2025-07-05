@@ -52,3 +52,18 @@ Mit AMTLICH.AI beweisen wir:
 → MVP Release: Q4/2025  
 → Starte lokal mit `docker-compose` und deinem eigenen Claude oder GPT-Account.  
 → Beitrag willkommen! Siehe `CONTRIBUTING.md`.
+
+### Local Docker Setup
+
+1. Build and run all services:
+   ```bash
+   docker-compose up --build
+   ```
+2. Backend erreichbar unter [http://localhost:8000](http://localhost:8000)
+3. Frontend erreichbar unter [http://localhost:3000](http://localhost:3000)
+4. MongoDB läuft als Container und wird vom Backend automatisch über `mongodb://mongo:27017` angesprochen.
+
+Stoppe alle Dienste mit:
+```bash
+docker-compose down
+```

@@ -15,6 +15,7 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
+    "lint": "eslint src --ext js,jsx",
     "eject": "react-scripts eject"
   },
   "browserslist": {
