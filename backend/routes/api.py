@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ..models import (
     Page,
@@ -11,15 +11,20 @@ from ..models import (
     ToolResponse,
     User,
 )
-from ..services.auth import get_current_user
+from ..auth import current_user, get_current_user
 from ..services.tools import tool_registry
 from ..services.db import db
 
-router = APIRouter(prefix="/api")
+# Public routes don't require authentication
+public_router = APIRouter(prefix="/api")
+
+# Protected routes share the authentication dependency
+protected_router = APIRouter(prefix="/api", dependencies=[Depends(get_current_user)])
 
 
-@router.post("/mcp/dispatch", response_model=ToolResponse)
-async def dispatch_tool(tool_call: ToolCall, user: User = Depends(get_current_user)):
+@protected_router.post("/mcp/dispatch", response_model=ToolResponse)
+async def dispatch_tool(tool_call: ToolCall, request: Request):
+    user = current_user(request)
     """Main MCP endpoint for tool dispatching."""
     try:
         tool = tool_registry.get_tool(tool_call.tool)
@@ -34,13 +39,14 @@ async def dispatch_tool(tool_call: ToolCall, user: User = Depends(get_current_us
         return ToolResponse(success=False, error=str(e))
 
 
-@router.get("/mcp/tools")
-async def list_tools(user: User = Depends(get_current_user)):
+@protected_router.get("/mcp/tools")
+async def list_tools(request: Request):
+    user = current_user(request)
     """List available MCP tools."""
     return {"tools": tool_registry.list_tools()}
 
 
-@router.post("/auth/register")
+@public_router.post("/auth/register")
 async def register_user(firebase_uid: str, email: str, name: str, role: str = "viewer"):
     """Register a new user after Firebase authentication."""
     try:
@@ -62,21 +68,23 @@ async def register_user(firebase_uid: str, email: str, name: str, role: str = "v
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/auth/me")
-async def get_current_user_info(user: User = Depends(get_current_user)):
+@protected_router.get("/auth/me")
+async def get_current_user_info(request: Request):
     """Get current user information."""
-    return user
+    return current_user(request)
 
 
-@router.get("/pages", response_model=List[Page])
-async def get_pages(user: User = Depends(get_current_user)):
+@protected_router.get("/pages", response_model=List[Page])
+async def get_pages(request: Request):
+    user = current_user(request)
     """Get all pages."""
     pages = await db.pages.find().to_list(1000)
     return [Page(**page) for page in pages]
 
 
-@router.get("/pages/{page_id}", response_model=Page)
-async def get_page(page_id: str, user: User = Depends(get_current_user)):
+@protected_router.get("/pages/{page_id}", response_model=Page)
+async def get_page(page_id: str, request: Request):
+    user = current_user(request)
     """Get a specific page."""
     page = await db.pages.find_one({"id": page_id})
     if not page:
@@ -84,15 +92,17 @@ async def get_page(page_id: str, user: User = Depends(get_current_user)):
     return Page(**page)
 
 
-@router.get("/articles", response_model=List[Article])
-async def get_articles(user: User = Depends(get_current_user)):
+@protected_router.get("/articles", response_model=List[Article])
+async def get_articles(request: Request):
+    user = current_user(request)
     """Get all articles."""
     articles = await db.articles.find().to_list(1000)
     return [Article(**article) for article in articles]
 
 
-@router.get("/articles/{article_id}", response_model=Article)
-async def get_article(article_id: str, user: User = Depends(get_current_user)):
+@protected_router.get("/articles/{article_id}", response_model=Article)
+async def get_article(article_id: str, request: Request):
+    user = current_user(request)
     """Get a specific article."""
     article = await db.articles.find_one({"id": article_id})
     if not article:
@@ -100,15 +110,17 @@ async def get_article(article_id: str, user: User = Depends(get_current_user)):
     return Article(**article)
 
 
-@router.get("/categories", response_model=List[Category])
-async def get_categories(user: User = Depends(get_current_user)):
+@protected_router.get("/categories", response_model=List[Category])
+async def get_categories(request: Request):
+    user = current_user(request)
     """Get all categories."""
     categories = await db.categories.find().to_list(1000)
     return [Category(**category) for category in categories]
 
 
-@router.get("/dashboard/stats")
-async def get_dashboard_stats(user: User = Depends(get_current_user)):
+@protected_router.get("/dashboard/stats")
+async def get_dashboard_stats(request: Request):
+    user = current_user(request)
     """Get dashboard statistics."""
     stats = {
         "total_pages": await db.pages.count_documents({}),
@@ -122,6 +134,9 @@ async def get_dashboard_stats(user: User = Depends(get_current_user)):
     return stats
 
 
-@router.get("/health")
+@public_router.get("/health")
 async def health_check() -> dict:
     return {"status": "healthy", "timestamp": datetime.utcnow()}
+
+
+__all__ = ["public_router", "protected_router"]
