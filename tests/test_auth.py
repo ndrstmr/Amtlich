@@ -7,7 +7,7 @@ client = TestClient(app)
 
 def test_auth_me_requires_authentication():
     response = client.get("/api/auth/me")
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 def test_register_user_success(client, fake_db):
