@@ -6,6 +6,7 @@ from fastapi import HTTPException
 
 from ..errors import ErrorResponse
 from ..models import Article, Category, Page, User, UserRole
+from .ai import AIService, AIServiceError
 from .db import db
 
 
@@ -145,6 +146,35 @@ class CreateUserTool(Tool):
         return {"user_id": new_user.id, "message": "User created successfully"}
 
 
+class GenerateTextTool(Tool):
+    """Example tool using an external AI service."""
+
+    def __init__(self, ai_service: AIService) -> None:
+        self.ai_service = ai_service
+
+    def get_name(self) -> str:
+        return "generateText"
+
+    async def execute(self, args: Dict[str, Any], user: User) -> Dict[str, Any]:
+        prompt = args.get("prompt")
+        if not prompt:
+            raise HTTPException(
+                status_code=400,
+                detail=ErrorResponse(
+                    message="prompt is required", code="missing_prompt"
+                ).dict(),
+            )
+
+        try:
+            result = await self.ai_service.post("/generate", {"prompt": prompt})
+            return {"text": result.get("text", "")}
+        except AIServiceError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=ErrorResponse(message=str(exc), code="ai_service_error").dict(),
+            )
+
+
 class ToolRegistry:
     def __init__(self) -> None:
         self.tools: Dict[str, Tool] = {}
@@ -165,3 +195,5 @@ tool_registry.register(CreatePageTool())
 tool_registry.register(CreateArticleTool())
 tool_registry.register(UpdatePageTool())
 tool_registry.register(CreateUserTool())
+ai_service = AIService()
+tool_registry.register(GenerateTextTool(ai_service))
