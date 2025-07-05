@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import react from 'eslint-plugin-react';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import importPlugin from 'eslint-plugin-import';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -13,11 +14,25 @@ export default [
       import: importPlugin
     },
     languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.jest
+      },
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module'
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true }
       }
     },
-    rules: {}
+    rules: {
+      'react/jsx-uses-react': 'error',
+      'react/jsx-uses-vars': 'error'
+    },
+    settings: {
+      react: {
+        version: 'detect'
+      }
+    }
   }
 ];
