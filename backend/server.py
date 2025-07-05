@@ -1,9 +1,23 @@
+import logging
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-import logging
 
+from .routes.api import protected_router, public_router
 from .services.db import client, init_firebase
-from .routes.api import public_router, protected_router
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT_DIR / ".env")
+
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [
+    origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()
+]
+if not allowed_origins:
+    allowed_origins = ["*"]
 
 app = FastAPI(
     title="MCP-CMS",
@@ -18,7 +32,7 @@ app.include_router(protected_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
