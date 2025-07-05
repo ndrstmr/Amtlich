@@ -10,7 +10,7 @@ def test_register_user_success(client, fake_db):
         "name": "New User",
         "role": "viewer",
     }
-    response = client.post("/api/auth/register", params=payload)
+    response = client.post("/api/auth/register", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == "User registered successfully"

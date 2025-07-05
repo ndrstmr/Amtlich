@@ -60,7 +60,7 @@ async def handle_http_exception(request: Request, exc: HTTPException) -> JSONRes
     if isinstance(exc.detail, dict):
         error_detail = exc.detail
     else:
-        error_detail = ErrorResponse(message=str(exc.detail)).dict()
+        error_detail = ErrorResponse(message="An error occurred").dict()
     return JSONResponse(status_code=exc.status_code, content={"error": error_detail})
 
 

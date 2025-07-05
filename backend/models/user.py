@@ -22,3 +22,10 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
+
+
+class RegisterUserRequest(BaseModel):
+    firebase_uid: str
+    email: str
+    name: str
+    role: UserRole = UserRole.VIEWER
