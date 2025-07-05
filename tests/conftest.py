@@ -10,8 +10,8 @@ os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "testdb")
 os.environ.setdefault("FIREBASE_SERVICE_ACCOUNT", "{}")
 
-from backend.server import app
 from backend.models import UserRole
+from backend.server import app
 from backend.services import db as db_module
 
 
@@ -31,6 +31,9 @@ class FakeCollection:
         self.storage[key] = doc
         return AsyncMock(inserted_id=key)
 
+    async def count_documents(self, query):
+        return len(self.storage)
+
 
 class FakeDB:
     def __init__(self):
@@ -46,6 +49,7 @@ def fake_db(monkeypatch):
     monkeypatch.setattr(db_module, "db", db)
     from backend import auth
     from backend.routes import api as api_routes
+
     monkeypatch.setattr(auth, "db", db)
     monkeypatch.setattr(api_routes, "db", db)
     yield db
@@ -80,4 +84,3 @@ def seed_user(fake_db):
     }
     fake_db.users.storage[user_doc["firebase_uid"]] = user_doc
     return user_doc
-

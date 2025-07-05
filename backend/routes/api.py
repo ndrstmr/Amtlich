@@ -1,20 +1,14 @@
+import logging
 from datetime import datetime
 from typing import List
 
-import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from ..models import (
-    Page,
-    Article,
-    Category,
-    ToolCall,
-    ToolResponse,
-    User,
-)
-from ..auth import current_user, get_current_user
-from ..services.tools import tool_registry
+from ..auth import current_user, get_current_user, require_roles
+from ..errors import ErrorResponse
+from ..models import Article, Category, Page, ToolCall, ToolResponse, User, UserRole
 from ..services.db import db
+from ..services.tools import tool_registry
 
 # Public routes don't require authentication
 public_router = APIRouter(prefix="/api")
@@ -73,7 +67,10 @@ async def register_user(firebase_uid: str, email: str, name: str, role: str = "v
         return {"message": "User registered successfully", "user_id": user.id}
     except Exception as e:
         logger.exception("User registration failed")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(
+            status_code=400,
+            detail=ErrorResponse(message=str(e), code="registration_failed").dict(),
+        )
 
 
 @protected_router.get("/auth/me")
@@ -96,7 +93,12 @@ async def get_page(page_id: str, request: Request):
     """Get a specific page."""
     page = await db.pages.find_one({"id": page_id})
     if not page:
-        raise HTTPException(status_code=404, detail="Page not found")
+        raise HTTPException(
+            status_code=404,
+            detail=ErrorResponse(
+                message="Page not found", code="page_not_found"
+            ).dict(),
+        )
     return Page(**page)
 
 
@@ -114,7 +116,12 @@ async def get_article(article_id: str, request: Request):
     """Get a specific article."""
     article = await db.articles.find_one({"id": article_id})
     if not article:
-        raise HTTPException(status_code=404, detail="Article not found")
+        raise HTTPException(
+            status_code=404,
+            detail=ErrorResponse(
+                message="Article not found", code="article_not_found"
+            ).dict(),
+        )
     return Article(**article)
 
 
@@ -127,7 +134,10 @@ async def get_categories(request: Request):
 
 
 @protected_router.get("/dashboard/stats")
-async def get_dashboard_stats(request: Request):
+async def get_dashboard_stats(
+    request: Request,
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR),
+):
     user = current_user(request)
     """Get dashboard statistics."""
     stats = {

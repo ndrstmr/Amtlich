@@ -4,13 +4,8 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException
 
-from ..models import (
-    User,
-    UserRole,
-    Page,
-    Article,
-    Category,
-)
+from ..errors import ErrorResponse
+from ..models import Article, Category, Page, User, UserRole
 from .db import db
 
 
@@ -30,7 +25,12 @@ class CreatePageTool(Tool):
 
     async def execute(self, args: Dict[str, Any], user: User) -> Dict[str, Any]:
         if user.role not in [UserRole.ADMIN, UserRole.EDITOR, UserRole.AUTHOR]:
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
+            raise HTTPException(
+                status_code=403,
+                detail=ErrorResponse(
+                    message="Insufficient permissions", code="insufficient_role"
+                ).dict(),
+            )
 
         page_data = {
             "title": args.get("title"),
@@ -53,7 +53,12 @@ class CreateArticleTool(Tool):
 
     async def execute(self, args: Dict[str, Any], user: User) -> Dict[str, Any]:
         if user.role not in [UserRole.ADMIN, UserRole.EDITOR, UserRole.AUTHOR]:
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
+            raise HTTPException(
+                status_code=403,
+                detail=ErrorResponse(
+                    message="Insufficient permissions", code="insufficient_role"
+                ).dict(),
+            )
 
         article_data = {
             "title": args.get("title"),
@@ -79,16 +84,36 @@ class UpdatePageTool(Tool):
     async def execute(self, args: Dict[str, Any], user: User) -> Dict[str, Any]:
         page_id = args.get("page_id")
         if not page_id:
-            raise HTTPException(status_code=400, detail="page_id is required")
+            raise HTTPException(
+                status_code=400,
+                detail=ErrorResponse(
+                    message="page_id is required", code="missing_page_id"
+                ).dict(),
+            )
 
         page_doc = await db.pages.find_one({"id": page_id})
         if not page_doc:
-            raise HTTPException(status_code=404, detail="Page not found")
+            raise HTTPException(
+                status_code=404,
+                detail=ErrorResponse(
+                    message="Page not found", code="page_not_found"
+                ).dict(),
+            )
 
-        if user.role not in [UserRole.ADMIN, UserRole.EDITOR] and page_doc.get("author_id") != user.id:
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        if (
+            user.role not in [UserRole.ADMIN, UserRole.EDITOR]
+            and page_doc.get("author_id") != user.id
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail=ErrorResponse(
+                    message="Insufficient permissions", code="insufficient_role"
+                ).dict(),
+            )
 
-        update_data = {k: v for k, v in args.items() if k != "page_id" and v is not None}
+        update_data = {
+            k: v for k, v in args.items() if k != "page_id" and v is not None
+        }
         update_data["updated_at"] = datetime.utcnow()
 
         await db.pages.update_one({"id": page_id}, {"$set": update_data})
@@ -101,7 +126,12 @@ class CreateUserTool(Tool):
 
     async def execute(self, args: Dict[str, Any], user: User) -> Dict[str, Any]:
         if user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=403, detail="Only admins can create users")
+            raise HTTPException(
+                status_code=403,
+                detail=ErrorResponse(
+                    message="Only admins can create users", code="insufficient_role"
+                ).dict(),
+            )
 
         user_data = {
             "firebase_uid": args.get("firebase_uid"),
