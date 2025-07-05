@@ -33,12 +33,12 @@ async def get_current_user(
         user = User(**user_doc)
         request.state.user = user
         return user
-    except Exception as e:  # pragma: no cover - network / firebase failures
+    except Exception:  # pragma: no cover - network / firebase failures
         logger.exception("Authentication failed")
         raise HTTPException(
             status_code=401,
             detail=ErrorResponse(
-                message=f"Authentication failed: {str(e)}", code="auth_failed"
+                message="Authentication failed", code="auth_failed"
             ).dict(),
         )
 

@@ -6,7 +6,16 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ..auth import current_user, get_current_user, require_roles
 from ..errors import ErrorResponse
-from ..models import Article, Category, Page, ToolCall, ToolResponse, User, UserRole
+from ..models import (
+    Article,
+    Category,
+    Page,
+    ToolCall,
+    ToolResponse,
+    User,
+    UserRole,
+    RegisterUserRequest,
+)
 from ..services.db import db
 from ..services.tools import tool_registry
 
@@ -34,10 +43,10 @@ async def dispatch_tool(tool_call: ToolCall, request: Request):
         return ToolResponse(success=True, data=result)
     except HTTPException as e:
         logger.warning("Tool dispatch error: %s", e.detail)
-        return ToolResponse(success=False, error=str(e.detail))
-    except Exception as e:
+        return ToolResponse(success=False, error="Tool execution failed")
+    except Exception:
         logger.exception("Unexpected error during tool dispatch")
-        return ToolResponse(success=False, error=str(e))
+        return ToolResponse(success=False, error="Unexpected error")
 
 
 @protected_router.get("/mcp/tools")
@@ -48,18 +57,18 @@ async def list_tools(request: Request):
 
 
 @public_router.post("/auth/register")
-async def register_user(firebase_uid: str, email: str, name: str, role: str = "viewer"):
+async def register_user(registration: RegisterUserRequest):
     """Register a new user after Firebase authentication."""
     try:
-        existing_user = await db.users.find_one({"firebase_uid": firebase_uid})
+        existing_user = await db.users.find_one({"firebase_uid": registration.firebase_uid})
         if existing_user:
             return {"message": "User already exists", "user_id": existing_user["id"]}
 
         user_data = {
-            "firebase_uid": firebase_uid,
-            "email": email,
-            "name": name,
-            "role": role,
+            "firebase_uid": registration.firebase_uid,
+            "email": registration.email,
+            "name": registration.name,
+            "role": registration.role,
         }
 
         user = User(**user_data)
@@ -69,7 +78,7 @@ async def register_user(firebase_uid: str, email: str, name: str, role: str = "v
         logger.exception("User registration failed")
         raise HTTPException(
             status_code=400,
-            detail=ErrorResponse(message=str(e), code="registration_failed").dict(),
+            detail=ErrorResponse(message="Registration failed", code="registration_failed").dict(),
         )
 
 
