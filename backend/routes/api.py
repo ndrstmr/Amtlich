@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ..models import (
@@ -21,6 +22,8 @@ public_router = APIRouter(prefix="/api")
 # Protected routes share the authentication dependency
 protected_router = APIRouter(prefix="/api", dependencies=[Depends(get_current_user)])
 
+logger = logging.getLogger(__name__)
+
 
 @protected_router.post("/mcp/dispatch", response_model=ToolResponse)
 async def dispatch_tool(tool_call: ToolCall, request: Request):
@@ -29,13 +32,17 @@ async def dispatch_tool(tool_call: ToolCall, request: Request):
     try:
         tool = tool_registry.get_tool(tool_call.tool)
         if not tool:
-            return ToolResponse(success=False, error=f"Tool '{tool_call.tool}' not found")
+            return ToolResponse(
+                success=False, error=f"Tool '{tool_call.tool}' not found"
+            )
 
         result = await tool.execute(tool_call.args, user)
         return ToolResponse(success=True, data=result)
     except HTTPException as e:
+        logger.warning("Tool dispatch error: %s", e.detail)
         return ToolResponse(success=False, error=str(e.detail))
     except Exception as e:
+        logger.exception("Unexpected error during tool dispatch")
         return ToolResponse(success=False, error=str(e))
 
 
@@ -65,6 +72,7 @@ async def register_user(firebase_uid: str, email: str, name: str, role: str = "v
         await db.users.insert_one(user.dict())
         return {"message": "User registered successfully", "user_id": user.id}
     except Exception as e:
+        logger.exception("User registration failed")
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -127,7 +135,9 @@ async def get_dashboard_stats(request: Request):
         "total_articles": await db.articles.count_documents({}),
         "total_users": await db.users.count_documents({}),
         "published_pages": await db.pages.count_documents({"status": "published"}),
-        "published_articles": await db.articles.count_documents({"status": "published"}),
+        "published_articles": await db.articles.count_documents(
+            {"status": "published"}
+        ),
         "draft_pages": await db.pages.count_documents({"status": "draft"}),
         "draft_articles": await db.articles.count_documents({"status": "draft"}),
     }

@@ -1,3 +1,4 @@
+import logging
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from firebase_admin import auth as firebase_auth
@@ -6,6 +7,7 @@ from .models import User
 from .services.db import db
 
 security = HTTPBearer()
+logger = logging.getLogger(__name__)
 
 
 async def get_current_user(
@@ -25,6 +27,7 @@ async def get_current_user(
         request.state.user = user
         return user
     except Exception as e:  # pragma: no cover - network / firebase failures
+        logger.exception("Authentication failed")
         raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 
