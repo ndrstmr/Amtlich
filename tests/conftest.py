@@ -44,6 +44,10 @@ class FakeDB:
 def fake_db(monkeypatch):
     db = FakeDB()
     monkeypatch.setattr(db_module, "db", db)
+    from backend import auth
+    from backend.routes import api as api_routes
+    monkeypatch.setattr(auth, "db", db)
+    monkeypatch.setattr(api_routes, "db", db)
     yield db
 
 
