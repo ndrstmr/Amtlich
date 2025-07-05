@@ -1,12 +1,15 @@
 // Load configuration from environment or config file
-const path = require('path');
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Environment variable overrides
 const config = {
   disableHotReload: process.env.DISABLE_HOT_RELOAD === 'true',
 };
 
-module.exports = {
+export default {
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
