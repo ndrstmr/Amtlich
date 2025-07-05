@@ -51,7 +51,7 @@ async def dispatch_tool(tool_call: ToolCall, request: Request):
 
 @protected_router.get("/mcp/tools")
 async def list_tools(request: Request):
-    user = current_user(request)
+    current_user(request)
     """List available MCP tools."""
     return {"tools": tool_registry.list_tools()}
 
@@ -76,7 +76,7 @@ async def register_user(registration: RegisterUserRequest):
         user = User(**user_data)
         await db.users.insert_one(user.dict())
         return {"message": "User registered successfully", "user_id": user.id}
-    except Exception as e:
+    except Exception:
         logger.exception("User registration failed")
         raise HTTPException(
             status_code=400,
@@ -94,7 +94,7 @@ async def get_current_user_info(request: Request):
 
 @protected_router.get("/pages", response_model=List[Page])
 async def get_pages(request: Request):
-    user = current_user(request)
+    current_user(request)
     """Get all pages."""
     pages = await db.pages.find().to_list(1000)
     return [Page(**page) for page in pages]
@@ -102,7 +102,7 @@ async def get_pages(request: Request):
 
 @protected_router.get("/pages/{page_id}", response_model=Page)
 async def get_page(page_id: str, request: Request):
-    user = current_user(request)
+    current_user(request)
     """Get a specific page."""
     page = await db.pages.find_one({"id": page_id})
     if not page:
@@ -117,7 +117,7 @@ async def get_page(page_id: str, request: Request):
 
 @protected_router.get("/articles", response_model=List[Article])
 async def get_articles(request: Request):
-    user = current_user(request)
+    current_user(request)
     """Get all articles."""
     articles = await db.articles.find().to_list(1000)
     return [Article(**article) for article in articles]
@@ -125,7 +125,7 @@ async def get_articles(request: Request):
 
 @protected_router.get("/articles/{article_id}", response_model=Article)
 async def get_article(article_id: str, request: Request):
-    user = current_user(request)
+    current_user(request)
     """Get a specific article."""
     article = await db.articles.find_one({"id": article_id})
     if not article:
@@ -140,7 +140,7 @@ async def get_article(article_id: str, request: Request):
 
 @protected_router.get("/categories", response_model=List[Category])
 async def get_categories(request: Request):
-    user = current_user(request)
+    current_user(request)
     """Get all categories."""
     categories = await db.categories.find().to_list(1000)
     return [Category(**category) for category in categories]
@@ -151,7 +151,7 @@ async def get_dashboard_stats(
     request: Request,
     _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR),
 ):
-    user = current_user(request)
+    current_user(request)
     """Get dashboard statistics."""
     stats = {
         "total_pages": await db.pages.count_documents({}),

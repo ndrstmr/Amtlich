@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import HTTPException
 
 from ..errors import ErrorResponse
-from ..models import Article, Category, Page, User, UserRole
+from ..models import Article, Page, User, UserRole
 from .ai import AIService, AIServiceError
 from .db import db
 
