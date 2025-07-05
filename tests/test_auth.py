@@ -1,11 +1,4 @@
-from fastapi.testclient import TestClient
-
-from backend.server import app
-
-client = TestClient(app)
-
-
-def test_auth_me_requires_authentication():
+def test_auth_me_requires_authentication(client):
     response = client.get("/api/auth/me")
     assert response.status_code == 403
 
