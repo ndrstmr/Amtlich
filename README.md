@@ -83,3 +83,70 @@ yarn prettier --check .
 ```
 
 These commands are executed in CI for every commit.
+
+## ⚙️ Voraussetzungen & lokale Entwicklung
+
+Bevor du loslegst, installiere **Python 3.11**, **Node.js 20** und **Yarn**. Optional kannst du alle Dienste auch komplett in Docker starten.
+
+### Wichtige Umgebungsvariablen
+
+| Variable                 | Beschreibung                                                    | Default                          |
+|--------------------------|----------------------------------------------------------------|----------------------------------|
+| `MONGO_URL`              | MongoDB-Verbindungs-URL                                         | `mongodb://localhost:27017`      |
+| `DB_NAME`                | Datenbankname                                                  | `amtlich`                        |
+| `FIREBASE_SERVICE_ACCOUNT` | JSON mit Firebase-Credentials                                 | `{}`                             |
+| `AI_BASE_URL`            | Basis-URL eines externen AI-Dienstes                           | *(optional)*                     |
+| `AI_API_KEY`             | API-Key für den AI-Dienst                                      | *(optional)*                     |
+| `ALLOWED_ORIGINS`        | Kommagetrennte Liste erlaubter CORS-Origin                     | `*`                              |
+| `REACT_APP_API_URL`      | API-Endpunkt für das Frontend                                  | `http://localhost:8000`          |
+
+Lege für das Backend eine `.env`-Datei an oder exportiere die Variablen in deiner Shell.
+
+### Schritte ohne Docker
+
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+uvicorn server:app --reload
+
+# Frontend
+cd ../frontend
+yarn install
+yarn start
+```
+
+### Docker-Variante
+
+Mit `docker-compose up --build` werden alle Container (MongoDB, Backend, Frontend) erstellt und gestartet. Passe bei Bedarf die oben genannten Variablen in `docker-compose.yml` an.
+
+## 🗄️ Architekturüberblick
+
+**Backend**
+
+- `backend/routes` – FastAPI-Routen (öffentliche und geschützte Endpunkte)
+- `backend/services` – Business-Logik und Integrationen (Datenbank, Auth, AI-Tools)
+- `backend/models` – Pydantic-Modelle für User, Page, Article usw.
+- `server.py` – zentrale App-Konfiguration
+
+**Frontend**
+
+- `src/components` – React-Komponenten für Dashboard und CMS
+- `src/__tests__` – Frontend-Tests mit Jest/React Testing Library
+
+## 🧪 Tests ausführen
+
+Backend-Tests laufen mit **pytest**:
+
+```bash
+pytest
+```
+
+Im Docker-Setup kannst du sie mit `docker-compose exec backend pytest` starten.
+
+Frontend-Tests startest du im `frontend`-Verzeichnis:
+
+```bash
+yarn test
+```
+
