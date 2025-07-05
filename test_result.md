@@ -138,7 +138,29 @@ backend:
       - working: true
         agent: "main"
         comment: "Added tests with mocked failures"
-frontend: []
+  - task: "Linting configuration"
+    implemented: true
+    working: true
+    file: "pyproject.toml"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added black and flake8 configs with CI"
+frontend:
+  - task: "Frontend linting setup"
+    implemented: true
+    working: true
+    file: "frontend/package.json"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added Prettier config and CI"
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -147,9 +169,15 @@ metadata:
 test_plan:
   current_focus:
     - "AI service layer with retries"
+    - "Linting configuration"
+    - "Frontend linting setup"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 agent_communication:
   - agent: "main"
     message: "Implemented AI service and tests; ready for testing"
+  - agent: "main"
+    message: "Added linting configuration and CI steps"
+  - agent: "main"
+    message: "Fixed CI failure by updating yarn.lock and running Prettier"

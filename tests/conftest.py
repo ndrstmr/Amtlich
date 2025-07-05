@@ -10,9 +10,9 @@ os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "testdb")
 os.environ.setdefault("FIREBASE_SERVICE_ACCOUNT", "{}")
 
-from backend.models import UserRole
-from backend.server import app
-from backend.services import db as db_module
+from backend.models import UserRole  # noqa: E402
+from backend.server import app  # noqa: E402
+from backend.services import db as db_module  # noqa: E402
 
 
 class FakeCollection:

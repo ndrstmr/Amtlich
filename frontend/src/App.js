@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Layout from './components/Layout';
-import axios from "axios";
+import axios from 'axios';
 
 // Firebase configuration - Replace with your actual config
 const firebaseConfig = {
-  apiKey: "your-api-key-here",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: 'your-api-key-here',
+  authDomain: 'your-project.firebaseapp.com',
+  projectId: 'your-project-id',
+  storageBucket: 'your-project.appspot.com',
+  messagingSenderId: '123456789',
+  appId: 'your-app-id',
 };
 
 // Initialize Firebase
@@ -39,18 +39,18 @@ const AuthProvider = ({ children }) => {
         try {
           // Get user token
           const token = await firebaseUser.getIdToken();
-          
+
           // Set axios default header
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
+
           // Register user in backend if not exists
           await axios.post(`${API}/auth/register`, {
             firebase_uid: firebaseUser.uid,
             email: firebaseUser.email,
             name: firebaseUser.displayName || firebaseUser.email,
-            role: "viewer"
+            role: 'viewer',
           });
-          
+
           // Get user info from backend
           const userResponse = await axios.get(`${API}/auth/me`);
           setUser(userResponse.data);
@@ -98,11 +98,14 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </div>

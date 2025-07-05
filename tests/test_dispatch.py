@@ -23,5 +23,3 @@ def test_tool_dispatch(client, mock_firebase, seed_user):
         assert data["data"]["user"] == seed_user["id"]
     finally:
         tool_registry.tools.pop(tool.get_name(), None)
-
-

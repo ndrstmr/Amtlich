@@ -1,5 +1,8 @@
 import React, { useState, useContext } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { AuthContext } from '../App';
 
 const Login = () => {
@@ -73,7 +76,9 @@ const Login = () => {
         </form>
 
         <p className="text-center mt-4 text-gray-600">
-          {isRegistering ? 'Already have an account?' : "Don't have an account?"}
+          {isRegistering
+            ? 'Already have an account?'
+            : "Don't have an account?"}
           <button
             className="text-blue-500 hover:text-blue-700 ml-1"
             onClick={() => setIsRegistering(!isRegistering)}

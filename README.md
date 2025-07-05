@@ -67,3 +67,19 @@ Stoppe alle Dienste mit:
 ```bash
 docker-compose down
 ```
+
+### Linting
+
+Back-end formatting and lint checks:
+```bash
+black --check backend tests
+flake8 backend tests
+```
+
+Front-end lint and style checks:
+```bash
+yarn lint
+yarn prettier --check .
+```
+
+These commands are executed in CI for every commit.

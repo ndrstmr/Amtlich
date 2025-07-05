@@ -11,28 +11,28 @@ export default [
     plugins: {
       react,
       'jsx-a11y': jsxA11y,
-      import: importPlugin
+      import: importPlugin,
     },
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.jest
+        ...globals.jest,
       },
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true }
-      }
+        ecmaFeatures: { jsx: true },
+      },
     },
     rules: {
       'react/jsx-uses-react': 'error',
-      'react/jsx-uses-vars': 'error'
+      'react/jsx-uses-vars': 'error',
     },
     settings: {
       react: {
-        version: 'detect'
-      }
-    }
-  }
+        version: 'detect',
+      },
+    },
+  },
 ];

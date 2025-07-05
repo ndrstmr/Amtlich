@@ -43,17 +43,27 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Pages</h3>
-          <p className="text-3xl font-bold text-blue-600">{stats.total_pages || 0}</p>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Total Pages
+          </h3>
+          <p className="text-3xl font-bold text-blue-600">
+            {stats.total_pages || 0}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Articles</h3>
-          <p className="text-3xl font-bold text-green-600">{stats.total_articles || 0}</p>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Total Articles
+          </h3>
+          <p className="text-3xl font-bold text-green-600">
+            {stats.total_articles || 0}
+          </p>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Published</h3>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Published
+          </h3>
           <p className="text-3xl font-bold text-purple-600">
             {(stats.published_pages || 0) + (stats.published_articles || 0)}
           </p>
@@ -68,7 +78,9 @@ const Dashboard = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">MCP Tool Testing</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          MCP Tool Testing
+        </h2>
         <MCPToolTester />
       </div>
     </div>
