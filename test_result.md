@@ -100,4 +100,56 @@
 
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
-#====================================================================================================
+#====================================================================================================user_problem_statement: |
+  1. Wrap external AI requests (Tool calls) in a service layer that sets timeouts and retries on failure.
+  2. Surface meaningful errors back to the API user and return a meaningful error response if a tool fails after retries.
+  3. Unit-test these helpers with mocked failures.
+backend:
+  - task: "AI service layer with retries"
+    implemented: true
+    working: true
+    file: "backend/services/ai.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implemented AIService with retries and timeouts"
+  - task: "AI tool using service"
+    implemented: true
+    working: true
+    file: "backend/services/tools.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added GenerateTextTool and registered it"
+  - task: "Unit tests for AI service"
+    implemented: true
+    working: true
+    file: "tests/test_ai_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added tests with mocked failures"
+frontend: []
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+test_plan:
+  current_focus:
+    - "AI service layer with retries"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+agent_communication:
+  - agent: "main"
+    message: "Implemented AI service and tests; ready for testing"
