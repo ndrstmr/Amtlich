@@ -3,8 +3,11 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
+
+from .logging_config import setup_logging
 
 from .routes.api import protected_router, public_router
 from .services.db import client, init_firebase
@@ -38,10 +41,7 @@ app.add_middleware(
 )
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # Initialize Firebase when the module is imported
@@ -51,3 +51,16 @@ init_firebase()
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+
+# FastAPI exception handlers
+@app.exception_handler(HTTPException)
+async def handle_http_exception(request: Request, exc: HTTPException) -> JSONResponse:
+    logger.warning("HTTPException: %s", exc.detail)
+    return JSONResponse(status_code=exc.status_code, content={"error": exc.detail})
+
+
+@app.exception_handler(Exception)
+async def handle_unexpected_exception(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception("Unhandled exception")
+    return JSONResponse(status_code=500, content={"error": "Internal Server Error"})
