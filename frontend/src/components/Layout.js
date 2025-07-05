@@ -42,7 +42,10 @@ const Layout = ({ children }) => {
 
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-700">{user?.name}</span>
-                <button onClick={handleSignOut} className="text-sm text-red-600 hover:text-red-800">
+                <button
+                  onClick={handleSignOut}
+                  className="text-sm text-red-600 hover:text-red-800"
+                >
                   Sign Out
                 </button>
               </div>

@@ -60,7 +60,9 @@ async def list_tools(request: Request):
 async def register_user(registration: RegisterUserRequest):
     """Register a new user after Firebase authentication."""
     try:
-        existing_user = await db.users.find_one({"firebase_uid": registration.firebase_uid})
+        existing_user = await db.users.find_one(
+            {"firebase_uid": registration.firebase_uid}
+        )
         if existing_user:
             return {"message": "User already exists", "user_id": existing_user["id"]}
 
@@ -78,7 +80,9 @@ async def register_user(registration: RegisterUserRequest):
         logger.exception("User registration failed")
         raise HTTPException(
             status_code=400,
-            detail=ErrorResponse(message="Registration failed", code="registration_failed").dict(),
+            detail=ErrorResponse(
+                message="Registration failed", code="registration_failed"
+            ).dict(),
         )
 
 

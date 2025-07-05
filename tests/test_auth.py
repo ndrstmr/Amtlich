@@ -23,4 +23,3 @@ def test_auth_me_with_mocked_firebase(client, mock_firebase, seed_user):
     assert response.status_code == 200
     data = response.json()
     assert data["firebase_uid"] == seed_user["firebase_uid"]
-
