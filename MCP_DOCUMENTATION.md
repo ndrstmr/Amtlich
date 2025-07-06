@@ -146,7 +146,7 @@ Erstellt einen neuen Benutzer (nur für Admins).
 - `GET /api/mcp/tools` - Liste verfügbarer Tools
 
 ### Authentication
-- `POST /api/auth/register` - Benutzer registrieren
+- `POST /api/auth/register` - Benutzer registrieren (Rolle wird immer als `viewer` gesetzt)
 - `GET /api/auth/me` - Aktuelle Benutzerinformationen
 
 ### Content Management

@@ -34,6 +34,7 @@ AMTLICH.AI ist ein **modularer MCP-Server** auf Basis von **FastAPI + MongoDB + 
 - `manageUsers()` – Rechteverwaltung & Redaktionsrollen
 - `uploadMedia()` – Mediendatenbank mit Drag’n’Drop
 - `promptQueue()` – Verarbeitung eingehender AI-Tasks
+- Neu registrierte Benutzer erhalten automatisch die Rolle `viewer`.
 
 ---
 

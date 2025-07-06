@@ -70,7 +70,7 @@ async def register_user(registration: RegisterUserRequest):
             "firebase_uid": registration.firebase_uid,
             "email": registration.email,
             "name": registration.name,
-            "role": registration.role,
+            "role": UserRole.VIEWER,
         }
 
         user = User(**user_data)
