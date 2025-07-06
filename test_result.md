@@ -161,6 +161,17 @@ frontend:
       - working: true
         agent: "main"
         comment: "Added Prettier config and CI"
+  - task: "Auth service integration"
+    implemented: true
+    working: true
+    file: "frontend/src/services/authService.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added auth service and refactored App.js"
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -171,6 +182,7 @@ test_plan:
     - "AI service layer with retries"
     - "Linting configuration"
     - "Frontend linting setup"
+    - "Auth service integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -181,3 +193,5 @@ agent_communication:
     message: "Added linting configuration and CI steps"
   - agent: "main"
     message: "Fixed CI failure by updating yarn.lock and running Prettier"
+  - agent: "main"
+    message: "Added frontend auth service and updated App.js"
