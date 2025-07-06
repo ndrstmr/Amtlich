@@ -7,23 +7,23 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Layout from './components/Layout';
 import axios from 'axios';
+import {
+  registerUserIfNeeded,
+  fetchUserFromServer,
+} from './services/authService';
 
-// Firebase configuration - Replace with your actual config
 const firebaseConfig = {
-  apiKey: 'your-api-key-here',
-  authDomain: 'your-project.firebaseapp.com',
-  projectId: 'your-project-id',
-  storageBucket: 'your-project.appspot.com',
-  messagingSenderId: '123456789',
-  appId: 'your-app-id',
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
 
 // Auth Context
 export const AuthContext = React.createContext();
@@ -43,17 +43,9 @@ const AuthProvider = ({ children }) => {
           // Set axios default header
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-          // Register user in backend if not exists
-          await axios.post(`${API}/auth/register`, {
-            firebase_uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            name: firebaseUser.displayName || firebaseUser.email,
-            role: 'viewer',
-          });
-
-          // Get user info from backend
-          const userResponse = await axios.get(`${API}/auth/me`);
-          setUser(userResponse.data);
+          await registerUserIfNeeded(firebaseUser);
+          const userData = await fetchUserFromServer();
+          setUser(userData);
         } catch (error) {
           console.error('Error setting up user:', error);
           setUser(null);
