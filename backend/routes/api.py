@@ -29,9 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 @protected_router.post("/mcp/dispatch", response_model=ToolResponse)
-async def dispatch_tool(
-    tool_call: ToolCall, user: User = Depends(get_current_user)
-):
+async def dispatch_tool(tool_call: ToolCall, user: User = Depends(get_current_user)):
     """Main MCP endpoint for tool dispatching."""
     try:
         tool = tool_registry.get_tool(tool_call.tool)
