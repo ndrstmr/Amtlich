@@ -10,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from .errors import ErrorResponse
 from .logging_config import setup_logging
 from .routes.api import protected_router, public_router
-from .services.db import client, init_firebase
+from .services.db import client, init_firebase, ensure_indexes
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT_DIR / ".env")
@@ -46,6 +46,11 @@ logger = logging.getLogger(__name__)
 
 # Initialize Firebase when the module is imported
 init_firebase()
+
+
+@app.on_event("startup")
+async def startup_db_client():
+    await ensure_indexes()
 
 
 @app.on_event("shutdown")

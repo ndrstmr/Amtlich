@@ -151,3 +151,10 @@ Frontend-Tests startest du im `frontend`-Verzeichnis:
 yarn test
 ```
 
+## Deployment Notes
+
+Beim Start des Backends werden wichtige MongoDB-Indizes erzeugt. Dies umfasst
+einzigartige Indizes auf den Feldern `firebase_uid` und `id` der `users`
+Collection. Bei einem frischen Deployment stellt das Backend so sicher, dass
+Abfragen performant bleiben.
+
