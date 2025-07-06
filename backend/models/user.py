@@ -27,4 +27,3 @@ class RegisterUserRequest(BaseModel):
     firebase_uid: str
     email: str
     name: str
-    role: UserRole = UserRole.VIEWER
