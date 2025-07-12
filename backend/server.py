@@ -10,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from .errors import ErrorResponse
 from .logging_config import setup_logging
 from .routes.api import protected_router, public_router
-from .services.db import client, ensure_indexes, init_firebase
+from .services.db import client, ensure_indexes, init_firebase, check_db_env
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -76,6 +76,7 @@ init_firebase()
 
 @app.on_event("startup")
 async def startup_db_client():
+    check_db_env()
     await ensure_indexes()
 
 
