@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime
 from typing import List
 
@@ -157,6 +158,19 @@ async def get_dashboard_stats(
         "draft_articles": await db.articles.count_documents({"status": "draft"}),
     }
     return stats
+
+
+@public_router.get("/config/firebase")
+async def get_firebase_config() -> dict:
+    """Return Firebase initialization settings."""
+    return {
+        "apiKey": os.getenv("FIREBASE_API_KEY", ""),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", ""),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId": os.getenv("FIREBASE_APP_ID", ""),
+    }
 
 
 @public_router.get("/health")
