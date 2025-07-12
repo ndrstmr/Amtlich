@@ -5,7 +5,27 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add basic security headers to each response."""
+
+    def __init__(self, app: FastAPI, csp: str = "default-src 'self'") -> None:
+        super().__init__(app)
+        self.csp = csp
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault(
+            "Strict-Transport-Security", "max-age=63072000; includeSubDomains"
+        )
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Content-Security-Policy", self.csp)
+        return response
+
 
 from .errors import ErrorResponse
 from .logging_config import setup_logging
@@ -30,6 +50,9 @@ app = FastAPI(
     title="MCP-CMS",
     description="Model Context Protocol based Content Management System",
 )
+
+# Security headers middleware must run before other middleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Register API routes
 app.include_router(public_router)
