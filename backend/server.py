@@ -10,17 +10,21 @@ from starlette.middleware.cors import CORSMiddleware
 from .errors import ErrorResponse
 from .logging_config import setup_logging
 from .routes.api import protected_router, public_router
-from .services.db import client, init_firebase, ensure_indexes
+from .services.db import client, ensure_indexes, init_firebase
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT_DIR / ".env")
 
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+# Parse allowed origins from the required environment variable
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
+if not allowed_origins_env:
+    raise RuntimeError("ALLOWED_ORIGINS environment variable must be set")
+
 allowed_origins = [
     origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()
 ]
 if not allowed_origins:
-    allowed_origins = ["*"]
+    raise RuntimeError("ALLOWED_ORIGINS environment variable must not be empty")
 
 app = FastAPI(
     title="MCP-CMS",

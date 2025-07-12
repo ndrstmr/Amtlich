@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "testdb")
 os.environ.setdefault("FIREBASE_SERVICE_ACCOUNT", "{}")
+os.environ.setdefault("ALLOWED_ORIGINS", "http://testserver")
 
 from backend.models import UserRole  # noqa: E402
 from backend.server import app  # noqa: E402
