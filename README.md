@@ -98,7 +98,7 @@ Bevor du loslegst, installiere **Python 3.11**, **Node.js 20** und **Yarn**. Opt
 | `FIREBASE_SERVICE_ACCOUNT` | JSON mit Firebase-Credentials                                 | `{}`                             |
 | `AI_BASE_URL`            | Basis-URL eines externen AI-Dienstes                           | *(optional)*                     |
 | `AI_API_KEY`             | API-Key für den AI-Dienst                                      | *(optional)*                     |
-| `ALLOWED_ORIGINS`        | Kommagetrennte Liste erlaubter CORS-Origin                     | `*`                              |
+| `ALLOWED_ORIGINS`        | Kommagetrennte Liste erlaubter CORS-Origin            | `http://localhost:3000`          |
 | `REACT_APP_API_URL`      | API-Endpunkt für das Frontend                                  | `http://localhost:8000`          |
 
 Lege für das Backend eine `.env`-Datei an oder exportiere die Variablen in deiner Shell.
