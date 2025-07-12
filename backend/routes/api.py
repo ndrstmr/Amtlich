@@ -4,6 +4,10 @@ from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import ValidationError
+from pymongo.errors import PyMongoError
+
+from ..services.ai import AIServiceError
 
 from ..auth import get_current_user, require_roles
 from ..errors import ErrorResponse
@@ -44,9 +48,9 @@ async def dispatch_tool(tool_call: ToolCall, user: User = Depends(get_current_us
     except HTTPException as e:
         logger.warning("Tool dispatch error: %s", e.detail)
         return ToolResponse(success=False, error="Tool execution failed")
-    except Exception:
-        logger.exception("Unexpected error during tool dispatch")
-        return ToolResponse(success=False, error="Unexpected error")
+    except (AIServiceError, PyMongoError, ValidationError) as exc:
+        logger.warning("Tool execution failed: %s", exc)
+        return ToolResponse(success=False, error="Tool execution failed")
 
 
 @protected_router.get("/mcp/tools")
@@ -79,8 +83,8 @@ async def register_user(
         user = User(**user_data)
         await db.users.insert_one(user.dict())
         return {"message": "User registered successfully", "user_id": user.id}
-    except Exception:
-        logger.exception("User registration failed")
+    except (ValidationError, PyMongoError) as exc:
+        logger.warning("User registration failed: %s", exc)
         raise HTTPException(
             status_code=400,
             detail=ErrorResponse(
