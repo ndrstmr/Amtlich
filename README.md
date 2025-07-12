@@ -102,6 +102,7 @@ Bevor du loslegst, installiere **Python 3.11**, **Node.js 20** und **Yarn**. Opt
 | `REACT_APP_API_URL`      | API-Endpunkt für das Frontend                                  | `http://localhost:8000`          |
 
 Lege für das Backend eine `.env`-Datei an oder exportiere die Variablen in deiner Shell.
+Die Variablen `MONGO_URL` und `DB_NAME` sind erforderlich. Fehlen sie, stoppt der Backend-Start mit einem Fehler.
 
 ### Schritte ohne Docker
 

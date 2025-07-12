@@ -12,11 +12,26 @@ from firebase_admin import credentials
 ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT_DIR / ".env")
 
-mongo_url = os.environ["MONGO_URL"]
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ["DB_NAME"]]
+MONGO_URL = os.getenv("MONGO_URL")
+DB_NAME = os.getenv("DB_NAME")
+
+if not MONGO_URL:
+    raise RuntimeError("MONGO_URL environment variable must be set")
+if not DB_NAME:
+    raise RuntimeError("DB_NAME environment variable must be set")
+
+client = AsyncIOMotorClient(MONGO_URL)
+db = client[DB_NAME]
 
 logger = logging.getLogger(__name__)
+
+
+def check_db_env() -> None:
+    """Ensure required MongoDB environment variables are set."""
+    if not MONGO_URL:
+        raise RuntimeError("MONGO_URL environment variable must be set")
+    if not DB_NAME:
+        raise RuntimeError("DB_NAME environment variable must be set")
 
 
 async def ensure_indexes() -> None:
