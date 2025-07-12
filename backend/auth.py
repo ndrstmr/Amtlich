@@ -33,7 +33,10 @@ async def get_current_user(
         user = User(**user_doc)
         request.state.user = user
         return user
-    except (firebase_exceptions.FirebaseError, ValueError) as exc:  # pragma: no cover - network / firebase failures
+    except (
+        firebase_exceptions.FirebaseError,
+        ValueError,
+    ) as exc:  # pragma: no cover - network / firebase failures
         logger.warning("Authentication failed: %s", exc)
         raise HTTPException(
             status_code=401,
