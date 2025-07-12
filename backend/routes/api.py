@@ -55,8 +55,12 @@ async def list_tools(user: User = Depends(get_current_user)):
     return {"tools": tool_registry.list_tools()}
 
 
-@public_router.post("/auth/register")
-async def register_user(registration: RegisterUserRequest):
+@protected_router.post("/auth/register")
+async def register_user(
+    registration: RegisterUserRequest,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN),
+):
     """Register a new user after Firebase authentication."""
     try:
         existing_user = await db.users.find_one(
