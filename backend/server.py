@@ -7,6 +7,10 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from .errors import ErrorResponse
+from .logging_config import setup_logging
+from .routes.api import protected_router, public_router
+from .services.db import client, ensure_indexes, init_firebase
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -26,11 +30,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers.setdefault("Content-Security-Policy", self.csp)
         return response
 
-
-from .errors import ErrorResponse
-from .logging_config import setup_logging
-from .routes.api import protected_router, public_router
-from .services.db import client, ensure_indexes, init_firebase
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT_DIR / ".env")
