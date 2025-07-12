@@ -12,18 +12,8 @@ import {
   fetchUserFromServer,
 } from './services/authService';
 
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+// Firebase auth instance will be created after fetching config
+let auth = null;
 
 // Auth Context
 export const AuthContext = React.createContext();
@@ -32,36 +22,58 @@ export const AuthContext = React.createContext();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authInstance, setAuthInstance] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          // Get user token
-          const token = await firebaseUser.getIdToken();
-
-          // Set axios default header
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-          await registerUserIfNeeded(firebaseUser);
-          const userData = await fetchUserFromServer();
-          setUser(userData);
-        } catch (error) {
-          console.error('Error setting up user:', error);
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-        delete axios.defaults.headers.common['Authorization'];
+    const fetchConfig = async () => {
+      try {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/config/firebase`,
+        );
+        const app = initializeApp(data);
+        auth = getAuth(app);
+        setAuthInstance(auth);
+      } catch (err) {
+        console.error('Failed to load Firebase config', err);
+        setLoading(false);
       }
-      setLoading(false);
-    });
-
-    return unsubscribe;
+    };
+    fetchConfig();
   }, []);
 
+  useEffect(() => {
+    if (!authInstance) return;
+    const unsubscribe = onAuthStateChanged(
+      authInstance,
+      async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            // Get user token
+            const token = await firebaseUser.getIdToken();
+
+            // Set axios default header
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+            await registerUserIfNeeded(firebaseUser);
+            const userData = await fetchUserFromServer();
+            setUser(userData);
+          } catch (error) {
+            console.error('Error setting up user:', error);
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+          delete axios.defaults.headers.common['Authorization'];
+        }
+        setLoading(false);
+      },
+    );
+
+    return unsubscribe;
+  }, [authInstance]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, auth }}>
+    <AuthContext.Provider value={{ user, loading, auth: authInstance }}>
       {children}
     </AuthContext.Provider>
   );
