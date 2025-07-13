@@ -41,7 +41,22 @@ async def ensure_indexes() -> None:
         if users and hasattr(users, "create_index"):
             await users.create_index("firebase_uid", unique=True)
             await users.create_index("id", unique=True)
-            logger.info("MongoDB indexes ensured")
+            await users.create_index("email")
+            logger.info("User indexes ensured")
+
+        pages = getattr(db, "pages", None)
+        if pages and hasattr(pages, "create_index"):
+            await pages.create_index("id", unique=True)
+            await pages.create_index("slug")
+            logger.info("Page indexes ensured")
+
+        articles = getattr(db, "articles", None)
+        if articles and hasattr(articles, "create_index"):
+            await articles.create_index("id", unique=True)
+            await articles.create_index("slug")
+            logger.info("Article indexes ensured")
+
+        logger.info("MongoDB indexes ensured")
     except Exception as e:  # pragma: no cover - index creation best effort
         logger.exception("Failed to create indexes: %s", e)
 
