@@ -183,6 +183,18 @@ frontend:
       - working: true
         agent: "main"
         comment: "Added CRUD tests for pages and articles with role checks"
+  - task: "Axios interceptor toast errors"
+    implemented: true
+    working: true
+    file: "frontend/src/services/axiosInterceptor.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added unit test verifying toast.error on failed request"
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -209,3 +221,5 @@ agent_communication:
     message: "Added frontend auth service and updated App.js"
   - agent: "main"
     message: "Added CRUD tests for pages and articles"
+  - agent: "main"
+    message: "Added axios interceptor test triggering toast error"
