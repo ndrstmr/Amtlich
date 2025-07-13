@@ -13,8 +13,12 @@ from ..auth import get_current_user, require_roles
 from ..errors import ErrorResponse
 from ..models import (
     Article,
+    ArticleCreate,
+    ArticleUpdate,
     Category,
     Page,
+    PageCreate,
+    PageUpdate,
     ToolCall,
     ToolResponse,
     User,
@@ -120,6 +124,83 @@ async def get_page(page_id: str, user: User = Depends(get_current_user)):
     return Page(**page)
 
 
+@protected_router.post(
+    "/pages",
+    response_model=Page,
+)
+async def create_page(
+    page: PageCreate,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR, UserRole.AUTHOR),
+):
+    """Create a new page."""
+    page_data = page.dict()
+    page_data["slug"] = page_data.get("slug") or page_data["title"].lower().replace(
+        " ", "-"
+    )
+    page_data["author_id"] = user.id
+    new_page = Page(**page_data)
+    await db.pages.insert_one(new_page.dict())
+    return new_page
+
+
+@protected_router.put(
+    "/pages/{page_id}",
+    response_model=Page,
+)
+async def update_page(
+    page_id: str,
+    page_update: PageUpdate,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR, UserRole.AUTHOR),
+):
+    """Update a page."""
+    page_doc = await db.pages.find_one({"id": page_id})
+    if not page_doc:
+        raise HTTPException(
+            status_code=404,
+            detail=ErrorResponse(
+                message="Page not found", code="page_not_found"
+            ).dict(),
+        )
+
+    if user.role == UserRole.AUTHOR and page_doc.get("author_id") != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail=ErrorResponse(
+                message="Insufficient permissions", code="insufficient_role"
+            ).dict(),
+        )
+
+    update_data = page_update.dict(exclude_unset=True)
+    if "title" in update_data and "slug" not in update_data:
+        update_data["slug"] = update_data["title"].lower().replace(" ", "-")
+    update_data["updated_at"] = datetime.utcnow()
+    await db.pages.update_one({"id": page_id}, {"$set": update_data})
+    page_doc.update(update_data)
+    return Page(**page_doc)
+
+
+@protected_router.delete(
+    "/pages/{page_id}",
+)
+async def delete_page(
+    page_id: str,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR),
+):
+    """Delete a page."""
+    result = await db.pages.delete_one({"id": page_id})
+    if not getattr(result, "deleted_count", 0):
+        raise HTTPException(
+            status_code=404,
+            detail=ErrorResponse(
+                message="Page not found", code="page_not_found"
+            ).dict(),
+        )
+    return {"message": "Page deleted"}
+
+
 @protected_router.get("/articles", response_model=List[Article])
 async def get_articles(user: User = Depends(get_current_user)):
     """Get all articles."""
@@ -139,6 +220,83 @@ async def get_article(article_id: str, user: User = Depends(get_current_user)):
             ).dict(),
         )
     return Article(**article)
+
+
+@protected_router.post(
+    "/articles",
+    response_model=Article,
+)
+async def create_article(
+    article: ArticleCreate,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR, UserRole.AUTHOR),
+):
+    """Create a new article."""
+    article_data = article.dict()
+    article_data["slug"] = article_data.get("slug") or article_data[
+        "title"
+    ].lower().replace(" ", "-")
+    article_data["author_id"] = user.id
+    new_article = Article(**article_data)
+    await db.articles.insert_one(new_article.dict())
+    return new_article
+
+
+@protected_router.put(
+    "/articles/{article_id}",
+    response_model=Article,
+)
+async def update_article(
+    article_id: str,
+    article_update: ArticleUpdate,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR, UserRole.AUTHOR),
+):
+    """Update an article."""
+    article_doc = await db.articles.find_one({"id": article_id})
+    if not article_doc:
+        raise HTTPException(
+            status_code=404,
+            detail=ErrorResponse(
+                message="Article not found", code="article_not_found"
+            ).dict(),
+        )
+
+    if user.role == UserRole.AUTHOR and article_doc.get("author_id") != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail=ErrorResponse(
+                message="Insufficient permissions", code="insufficient_role"
+            ).dict(),
+        )
+
+    update_data = article_update.dict(exclude_unset=True)
+    if "title" in update_data and "slug" not in update_data:
+        update_data["slug"] = update_data["title"].lower().replace(" ", "-")
+    update_data["updated_at"] = datetime.utcnow()
+    await db.articles.update_one({"id": article_id}, {"$set": update_data})
+    article_doc.update(update_data)
+    return Article(**article_doc)
+
+
+@protected_router.delete(
+    "/articles/{article_id}",
+)
+async def delete_article(
+    article_id: str,
+    user: User = Depends(get_current_user),
+    _role_check: None = require_roles(UserRole.ADMIN, UserRole.EDITOR),
+):
+    """Delete an article."""
+    result = await db.articles.delete_one({"id": article_id})
+    if not getattr(result, "deleted_count", 0):
+        raise HTTPException(
+            status_code=404,
+            detail=ErrorResponse(
+                message="Article not found", code="article_not_found"
+            ).dict(),
+        )
+    return {"message": "Article deleted"}
 
 
 @protected_router.get("/categories", response_model=List[Category])

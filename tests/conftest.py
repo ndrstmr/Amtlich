@@ -35,6 +35,31 @@ class FakeCollection:
     async def count_documents(self, query):
         return len(self.storage)
 
+    async def update_one(self, query, update):
+        key = query.get("id") or query.get("firebase_uid")
+        doc = self.storage.get(key)
+        if doc:
+            doc.update(update.get("$set", {}))
+            return AsyncMock(modified_count=1)
+        return AsyncMock(modified_count=0)
+
+    async def delete_one(self, query):
+        key = query.get("id") or query.get("firebase_uid")
+        if key in self.storage:
+            del self.storage[key]
+            return AsyncMock(deleted_count=1)
+        return AsyncMock(deleted_count=0)
+
+    def find(self):
+        class Cursor:
+            def __init__(self, docs):
+                self.docs = list(docs.values())
+
+            async def to_list(self, limit):
+                return self.docs[:limit]
+
+        return Cursor(self.storage)
+
 
 class FakeDB:
     def __init__(self):
