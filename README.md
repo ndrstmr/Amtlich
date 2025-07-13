@@ -155,7 +155,7 @@ yarn test
 ## Deployment Notes
 
 Beim Start des Backends werden wichtige MongoDB-Indizes erzeugt. Dies umfasst
-einzigartige Indizes auf den Feldern `firebase_uid` und `id` der `users`
-Collection. Bei einem frischen Deployment stellt das Backend so sicher, dass
-Abfragen performant bleiben.
+einzigartige Indizes auf den Feldern `firebase_uid` und `id` sowie einen
+nicht eindeutigen Index auf `email` der `users` Collection. Bei einem frischen
+Deployment stellt das Backend so sicher, dass Abfragen performant bleiben.
 
