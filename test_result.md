@@ -172,6 +172,17 @@ frontend:
       - working: true
         agent: "main"
         comment: "Added auth service and refactored App.js"
+  - task: "Content endpoint tests"
+    implemented: true
+    working: true
+    file: "tests/test_content_endpoints.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added CRUD tests for pages and articles with role checks"
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -183,6 +194,7 @@ test_plan:
     - "Linting configuration"
     - "Frontend linting setup"
     - "Auth service integration"
+    - "Content endpoint tests"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -195,3 +207,5 @@ agent_communication:
     message: "Fixed CI failure by updating yarn.lock and running Prettier"
   - agent: "main"
     message: "Added frontend auth service and updated App.js"
+  - agent: "main"
+    message: "Added CRUD tests for pages and articles"
