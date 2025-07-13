@@ -7,6 +7,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Layout from './components/Layout';
 import axios from 'axios';
+import { ToastContainer } from 'react-toastify';
 import {
   registerUserIfNeeded,
   fetchUserFromServer,
@@ -98,6 +99,7 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
+      <ToastContainer />
       <div className="App">
         <BrowserRouter>
           <Routes>

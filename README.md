@@ -115,6 +115,7 @@ uvicorn server:app --reload
 # Frontend
 cd ../frontend
 yarn install
+yarn add react-toastify # falls nicht bereits installiert
 yarn start
 ```
 
@@ -135,6 +136,11 @@ Mit `docker-compose up --build` werden alle Container (MongoDB, Backend, Fronten
 
 - `src/components` – React-Komponenten für Dashboard und CMS
 - `src/__tests__` – Frontend-Tests mit Jest/React Testing Library
+- `src/services/axiosInterceptor.js` – registriert einen Axios-Interceptor, der
+  HTTP-Fehler per Toast anzeigt
+
+Beim Laden von `src/index.js` wird dieser Interceptor automatisch aktiviert, so
+dass API-Fehler als Benachrichtigung erscheinen.
 
 ## 🧪 Tests ausführen
 
