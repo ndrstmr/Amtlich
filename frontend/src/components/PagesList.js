@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API = `${API_BASE_URL}/api`;
 
 const PagesList = () => {
   const [pages, setPages] = useState([]);
