@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from backend.services import db as db_module
 
+
 @pytest.mark.asyncio
 async def test_ensure_indexes(monkeypatch):
     users = MagicMock()
